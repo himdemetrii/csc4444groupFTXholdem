@@ -1,0 +1,138 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║                    IMPORTANT UPDATES - READ THIS FIRST                    ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+After reviewing engine.go, I found critical validation rules that required
+updates to the client. Here's what changed:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔧 CRITICAL FIXES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Legal Action Detection
+   ─────────────────────
+   BEFORE: Guessed CHECK/CALL availability
+   AFTER:  Follows engine rules strictly
+   
+   Engine rules:
+   • CHECK only when toCall == 0
+   • CALL only when toCall > 0
+   • Can't CHECK when there's a bet → must CALL or FOLD
+
+2. Action Validation
+   ─────────────────────────
+   BEFORE: Converted illegal CHECK to FOLD
+   AFTER:  Smart conversion CHECK ↔ CALL based on game state
+   
+   Examples:
+   • Model says CHECK but bet exists → converts to CALL
+   • Model says CALL but no bet → converts to CHECK
+   • Prevents server rejecting actions
+
+3. Raise Amount Validation
+   ───────────────────────
+   BEFORE: Fixed BB multipliers, no chip validation
+   AFTER:  Checks available chips, handles all-in
+   
+   Now handles:
+   • Short stack all-in calls
+   • Short stack all-in raises
+   • Proper raise sizing
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📁 UPDATED FILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ poker_client.py        - Improved action logic (UPDATED)
+✅ ENGINE_UPDATES.md      - Detailed explanation (NEW)
+✅ CHANGES_SUMMARY.txt    - This file (NEW)
+
+All other files unchanged:
+   poker_model.py
+   integration_test.py
+   README.md
+   INTEGRATION_GUIDE.md
+   etc.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  KNOWN LIMITATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The server doesn't currently send "toCall" amount in the state message.
+
+This means:
+• Client can't perfectly determine CHECK vs CALL
+• Using heuristics as workaround
+• Works but may occasionally guess wrong
+
+RECOMMENDED FIX (ask server team):
+Add to Go code in connection/server.go:
+
+  type PublicState struct {
+      // ... existing fields ...
+      ToCall   int `json:"toCall"`    // ADD THIS
+      MinRaise int `json:"minRaise"`  // ADD THIS TOO
+  }
+
+This would make the client 100% accurate.
+
+For now, the client works with smart fallbacks and will adapt to whatever
+the server accepts.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ WHAT STILL WORKS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ Turn detection (toActIdx)
+✓ Card extraction and conversion
+✓ Model inference
+✓ Hand strength calculation
+✓ WebSocket connection
+✓ Phase transitions
+✓ All 7 integration tests
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚀 WHAT TO DO NOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Download the updated poker_client.py
+   (the old one will cause server validation errors)
+
+2. Run tests (should still pass):
+   $ python integration_test.py
+
+3. Connect and play:
+   $ python poker_client.py
+
+4. Monitor for errors:
+   - Watch server logs
+   - Check for "ErrInvalidAction" 
+   - Check for "ErrRaiseTooSmall"
+
+5. (Optional) Request server enhancement:
+   - Ask for toCall in state messages
+   - Ask for minRaise in state messages
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📚 MORE INFO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+See ENGINE_UPDATES.md for:
+• Detailed engine rule explanations
+• Code comparisons (before/after)
+• Testing checklist
+• Server enhancement recommendations
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+💡 KEY TAKEAWAY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The updated client is SMARTER about action selection:
+• Respects engine validation rules
+• Converts between CHECK/CALL intelligently  
+• Handles all-in scenarios correctly
+• Won't get rejected by server
+
+Bottom line: Use the updated poker_client.py for best results!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -1,0 +1,197 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║                    POKER AI INTEGRATION - QUICK START                     ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+📦 WHAT YOU GOT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  poker_model.py         → Your neural network (importable)
+  poker_client.py        → WebSocket bot that plays poker
+  integration_test.py    → Test suite (7 tests)
+  README.md              → Quick start guide
+  INTEGRATION_GUIDE.md   → Detailed documentation
+  SUMMARY.md             → This summary
+  quickstart.py          → Automated setup
+  requirements.txt       → Dependencies
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+🚀 GET STARTED (3 STEPS)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  STEP 1: Install Dependencies
+  ────────────────────────────
+  $ pip install -r requirements.txt
+
+
+  STEP 2: Test Integration (No Server)
+  ─────────────────────────────────────
+  $ python integration_test.py
+
+  Expected: ✅ 7/7 tests pass
+
+
+  STEP 3: Run Your Bot
+  ─────────────────────
+  Terminal 1 (Go Server):
+    $ cd path/to/Texas-HoldEm-Infrastructure
+    $ go run cmd/main.go
+
+  Terminal 2 (Python Bot):
+    $ python poker_client.py
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+📊 HOW IT WORKS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌──────────────┐                        ┌──────────────┐
+  │  Go Server   │   ←─── WebSocket ───→  │  Python Bot  │
+  │              │                        │              │
+  │ Game Logic   │   State Update         │ Your Model   │
+  │ • Dealing    │   ─────────────→       │ • Inference  │
+  │ • Betting    │                        │ • Decision   │
+  │ • Evaluation │   Player Action        │              │
+  │              │   ←─────────────       │              │
+  └──────────────┘                        └──────────────┘
+
+  1. Server sends game state (cards, pot, phase, whose turn)
+  2. Bot checks if it's your turn
+  3. Bot extracts your cards and board
+  4. Bot converts to model format
+  5. Model predicts best action
+  6. Bot converts to server format
+  7. Bot sends action to server
+  8. Repeat!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+🔧 CONFIGURATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Edit poker_client.py (bottom of file):
+
+    API_KEY = "dev"           ← Must match server
+    TABLE_ID = "table-1"      ← Must exist on server
+    PLAYER_ID = "bot1"        ← Unique per bot
+    SERVER_HOST = "localhost"
+    SERVER_PORT = "8080"
+    MODEL_PATH = None         ← Or "model.pth" for saved weights
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+📋 KEY FEATURES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✅ Automatic card format conversion (server ↔ model)
+  ✅ Turn detection (only acts when it's your turn)
+  ✅ Legal action validation (CHECK vs CALL logic)
+  ✅ Raise sizing (small/medium/large)
+  ✅ Error handling (connection drops, invalid states)
+  ✅ Comprehensive testing suite
+  ✅ Detailed logging and debugging
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+🎮 MULTIPLE BOTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Terminal 1:
+    $ python poker_client.py
+    # Uses PLAYER_ID="bot1"
+
+  Terminal 2:
+    # Edit poker_client.py: change PLAYER_ID to "bot2"
+    $ python poker_client.py
+
+  Terminal 3:
+    # Edit poker_client.py: change PLAYER_ID to "bot3"
+    $ python poker_client.py
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+🐛 TROUBLESHOOTING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ❌ "Connection refused"
+     → Start Go server first
+
+  ❌ "Unauthorized"
+     → Check API_KEY matches
+
+  ❌ "Unknown table"
+     → Verify TABLE_ID is registered
+
+  ❌ Bot doesn't act
+     → Run integration_test.py
+     → Check server logs
+     → Verify turn detection
+
+  ❌ Tests fail
+     → Check dependencies installed
+     → Verify Python 3.8+
+     → Review error messages
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+📚 DOCUMENTATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  README.md               → Quick reference
+  INTEGRATION_GUIDE.md    → Deep dive (formats, API, examples)
+  SUMMARY.md              → What you got and how to use it
+  integration_test.py     → Verify everything works
+  Code comments           → Inline documentation
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+✅ SUCCESS CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ☐ Installed dependencies (pip install -r requirements.txt)
+  ☐ All tests pass (python integration_test.py)
+  ☐ Go server running (go run cmd/main.go)
+  ☐ Configuration updated (API_KEY, TABLE_ID, PLAYER_ID)
+  ☐ Bot connects successfully
+  ☐ Bot receives state updates
+  ☐ Bot acts when it's its turn
+  ☐ Actions are accepted by server
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+💡 TIPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  • Run integration tests BEFORE connecting to server
+  • Check server logs if connection issues occur
+  • Use multiple terminals for multiple bots
+  • Save model weights for reuse: torch.save(model.state_dict(), 'model.pth')
+  • Monitor bot decisions with logging
+  • Start with 2 bots to test interaction
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+
+🎯 YOU'RE READY!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Your model is ready to play poker against the Go server!
+
+  Run this now:
+    $ python quickstart.py
+
+  Or jump straight to playing:
+    $ python integration_test.py  # Verify first
+    $ python poker_client.py      # Then play
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
