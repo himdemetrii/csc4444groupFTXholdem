@@ -7,6 +7,7 @@ import json
 import websockets
 import torch
 from typing import Dict, List, Optional, Tuple
+import ssl
 
 # Import the enhanced model
 from poker_model_enhanced import EnhancedPokerNet, extract_context_features, calculate_hand_strength
@@ -109,10 +110,24 @@ class EnhancedPokerBot:
             return False
     
     def _get_legal_actions(self, state: Dict, player_id: str) -> Dict[str, bool]:
-        """Determine legal actions."""
-        legal = {"CHECK": True, "CALL": True, "RAISE": True, "FOLD": True}
-        # Simplified - in practice, would check toCall amount
-        return legal
+        """Return the server-reported legal actions."""
+        legal = state.get("legalActions", {})
+
+    # Always provide all 4 keys to avoid KeyErrors
+        if not legal:
+            return {
+                "CHECK": True,
+                "CALL":  True,
+                "RAISE": True,
+                "FOLD":  True,
+            }
+        
+        return {
+            "CHECK": legal.get("CHECK", False),
+            "CALL":  legal.get("CALL", False),
+            "RAISE": legal.get("RAISE", False),
+            "FOLD":  legal.get("FOLD", True),
+      }
     
     def _map_action_to_server(self, model_action: int, state: Dict, 
                                player_id: str, bb: int = 10) -> Dict:
@@ -148,14 +163,30 @@ class EnhancedPokerBot:
         if action_str == "RAISE":
             multiplier = self.raise_amounts.get(model_action, 2.5)
             raise_size = int(bb * multiplier)
+
+            raw_legal = state.get("legalActions", {})
+            raise_info = raw_legal.get("RAISE")
+
+            min_raise = None
+            max_raise = None
+
+            if isinstance(raise_info, dict):
+                min_raise = raise_info.get("min")
+                max_raise = raise_info.get("max")
+
+            if min_raise is not None:
+                raise_size = max(raise_size, min_raise)
+            if max_raise is not None:
+                raise_size = min(raise_size, max_raise)
             
             # Check chip constraints
             if my_chips < raise_size:
-                if my_chips > 0:
-                    raise_size = my_chips
-                else:
-                    msg["action"] = "FOLD"
+                if legal.get("CALL", False):
+                    msg["action"] = "CALL"
                     return msg
+                
+                msg["action"] = "FOLD"
+                return msg
             
             msg["amount"] = raise_size
         
@@ -225,7 +256,8 @@ async def play_poker(url: str, player_id: str, model_path: Optional[str] = None)
     print("="*60)
     
     try:
-        async with websockets.connect(url) as ws:
+        ssl_context = ssl._create_unverified_context()
+        async with websockets.connect(url, ssl=ssl_context) as ws:
             print(f"✅ Connected to {url}")
             
             await ws.send(json.dumps({"type": "join"}))
@@ -260,6 +292,17 @@ async def play_poker(url: str, player_id: str, model_path: Optional[str] = None)
                     
                     else:
                         print(f"📥 Received: {msg_type}")
+                except websockets.exceptions.ConnectionClosedOK as e:
+                    print(f"⚠️ Server sent normal close frame (ignored): code={e.code}, reason={e.reason}")
+                    continue
+                
+                except websockets.exceptions.ConnectionClosedError as e:
+                    print(f"⚠️ Server closed connection unexpectedly (ignored): code={e.code}, reason={e.reason}")
+                    continue
+
+                except EOFError:
+                    print("⚠️ EOF received but server still active - ignoring.")
+                    continue
                 
                 except websockets.exceptions.ConnectionClosed:
                     print("\n🔌 Connection closed")
@@ -282,11 +325,9 @@ if __name__ == "__main__":
     API_KEY = "dev"
     TABLE_ID = "table-1"
     PLAYER_ID = "enhanced_bot1"
-    SERVER_HOST = "localhost"
-    SERVER_PORT = "8080"
+    BASE_URL = "wss://texasholdem-871757115753.northamerica-northeast1.run.app"  
     
-    url = f"ws://{SERVER_HOST}:{SERVER_PORT}/ws?apiKey={API_KEY}&table={TABLE_ID}&player={PLAYER_ID}"
-    
+    url = f"{BASE_URL}/ws?apiKey={API_KEY}&table={TABLE_ID}&player={PLAYER_ID}"    
     MODEL_PATH = None  # or "enhanced_model.pth"
     
     print("\n" + "="*60)

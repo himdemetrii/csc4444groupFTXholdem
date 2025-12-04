@@ -271,4 +271,4 @@ def calculate_hand_strength(hole_cards, board_cards):
 # Backward compatibility: allow importing SimplePokerNet
 SimplePokerNet = EnhancedPokerNet
 
-# PYTHONPATH=./src python3 tests/integration_test.py
+# PYTHONPATH=./poker-ai-complete/src python3 poker-ai-complete/tests/integration_test.py | For testing
