@@ -1,2 +1,2 @@
 # csc4444groupFTXholdem
-group f github for texas holdem bot project
+A reinforcement learning agent trained to play Texas Hold 'Em poker, built with PyTorch and Google DeepMind's OpenSpiel.
