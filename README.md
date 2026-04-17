@@ -14,7 +14,7 @@ Starting Accuracy : 0%
 
 Final Loss : 1.22% 
 
-Tournament Placement : 4th  
+Tournament Placement : 4th 
 
 Overall Hands Survived : 37 
 
