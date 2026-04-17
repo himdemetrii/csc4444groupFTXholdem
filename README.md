@@ -29,3 +29,5 @@ Then: cd poker-ai-complete
 Last: python train.py
 
 Check out our presentation: https://canva.link/xkvcw2ycys5xqp6 (copy link & paste in browser)
+
+There is also another README that goes into further more detail in the poker-ai-complete folder.
