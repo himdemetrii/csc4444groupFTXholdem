@@ -8,7 +8,17 @@ The bot learns optimal play strategies through self-play and reward signals, usi
 Tech Stack: Python, PyTorch, Google DeepMind OpenSpiel, NumPy, VS Code, Canva, Microsoft Office Suites
 
 Results
-Final Accuracy : 64% Starting Accuracy : 0% Final Loss : 1.22% Tournament Placement : 4th  Overall Hands Survived : 37 Project Grade: A
+Final Accuracy : 64% 
+
+Starting Accuracy : 0% 
+
+Final Loss : 1.22% 
+
+Tournament Placement : 4th  
+
+Overall Hands Survived : 37 
+
+Project Grade: A
 
 Run this program : In terminal : pip install torch numpy open_spiel
 
