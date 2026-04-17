@@ -7,3 +7,7 @@ Tech Stack: Python, PyTorch, Google DeepMind OpenSpiel, NumPy
 
 Results
 Final Accuracy : 64% Starting Accuracy : 0% Final Loss : 1.22% Tournament Placement :4th  Overall Hands Survived : 37
+Run this program : In terminal : pip install torch numpy open_spiel
+Then :git clone https://github.com/himdemetrii/poker-ai-complete.git
+Then: cd poker-ai-complete
+Last: python train.py
