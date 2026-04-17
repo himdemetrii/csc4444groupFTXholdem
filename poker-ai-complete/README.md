@@ -36,7 +36,7 @@ python src/poker_client_enhanced.py  # Recommended!
 
 ---
 
-## 📁 Folder Structure
+## 📁 Folders Structure
 
 ```
 poker-ai-complete/
